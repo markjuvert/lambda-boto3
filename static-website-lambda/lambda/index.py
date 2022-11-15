@@ -29,7 +29,7 @@ def lambda_handler(event, context):
         repo_name = urlparse(repo_url).path.split('/')[-2]
         local_file = download_repo(repo_url)
         extract(local_file, '/tmp')
-        upload_to_s3(bucket, f'/tmp/{repo_name}-master/{repo_subdir}')
+        upload_to_s3(bucket, f'/tmp/{repo_name}-main/{repo_subdir}')
         cfnresponse.send(event, context, cfnresponse.SUCCESS,
                          response_data, "CustomResourcePhysicalID")
     except Exception as e:
@@ -49,7 +49,7 @@ def timeout(event, context, logger):
 
 
 def download_repo(url):
-    # i.e. https://github.com/linuxacademy/content-lambda-boto3/archive/master.zip
+    # i.e. https://github.com/markjuvert/markjuvert/main.zip
     url += 'archive/master.zip'
     print('Downloading repo: ' + url)
     file_name = os.path.basename(url)  # i.e. master.zip
