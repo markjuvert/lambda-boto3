@@ -14,7 +14,7 @@ Parameters:
   RepoSubdir:
     Description: Repository subdirectory to upload to S3
     Type: String
-    Default: 'WebApps/Contact-Form/webapp'
+    Default: 'lambda-boto3/static-website-lambda/sample-html'
     MinLength: 1
 
 
@@ -35,11 +35,11 @@ Resources:
         Id: MyPolicy
         Version: 2012-10-17
         Statement:
-          - Sid: PublicReadForGetBucketObjects
-            Effect: Allow
-            Principal: '*'
-            Action: 's3:GetObject'
-            Resource: !Sub "arn:aws:s3:::${S3Bucket}/*"
+        - Sid: PublicReadForGetBucketObjects
+          Effect: Allow
+          Principal: '*'
+          Action: 's3:GetObject'
+          Resource: !Sub "arn:aws:s3:::${S3Bucket}/*"
       Bucket: !Ref S3Bucket
 
   LambdaDeployToS3Role:
@@ -48,24 +48,24 @@ Resources:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - 'sts:AssumeRole'
       ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
       Policies:
-        - PolicyName: S3Policy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - 's3:PutObject'
-                  - 'S3:DeleteObject'
-                Resource: !Sub "arn:aws:s3:::${S3Bucket}/*"
+      - PolicyName: S3Policy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 's3:PutObject'
+            - 'S3:DeleteObject'
+            Resource: !Sub "arn:aws:s3:::${S3Bucket}/*"
 
   DeployToS3Function:
     Type: AWS::Lambda::Function
@@ -123,10 +123,10 @@ Resources:
 
 
           def download_repo(url):
-              # i.e. https://github.com/markjuvert/markjuvert/archive/master.zip
-              url += 'archive/master.zip'
+              # i.e. https://github.com/markjuvert/lambda-boto3/archive/main.zip
+              url += 'archive/main.zip'
               print('Downloading repo: ' + url)
-              file_name = os.path.basename(url)  # i.e. master.zip
+              file_name = os.path.basename(url)  # i.e. main.zip
               local_file = os.path.join('/tmp', file_name)
               urllib.request.urlretrieve(url, local_file)
               st = os.stat(local_file)
@@ -172,15 +172,15 @@ Outputs:
 
   WebsiteURL:
     Value: !GetAtt
-      - S3Bucket
-      - WebsiteURL
+    - S3Bucket
+    - WebsiteURL
     Description: URL for website hosted on S3
 
   S3BucketSecureURL:
     Value: !Join
-      - ''
-      - - 'https://'
-        - !GetAtt
-          - S3Bucket
-          - DomainName
+    - ''
+    - - 'https://'
+      - !GetAtt
+        - S3Bucket
+        - DomainName
     Description: Name of S3 bucket to hold website content
